@@ -65,10 +65,9 @@ class EVALIMDbDataset(IMDbDataset):
 
 
 
-def collate_fn(data):
+def collate_fn_RT(data):
   texts = {'chosen': [], 'rejected': []}
   for x in data:
-    print(x)
     for k in x.keys():
         texts[k].append(x[k])
   chosen = tokenizer(texts['chosen'], truncation=True, padding=True, return_tensors='pt')

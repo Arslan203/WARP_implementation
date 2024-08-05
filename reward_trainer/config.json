@@ -9,8 +9,10 @@
         "num_epochs": 5,
         "batch_per_epoch": 1000,
         "batch_per_eval": 100,
-        "epoch_to_save": 3,
+        "epoch_to_save": 2,
         "log_with": "none",
+        "save_path": "RM",
+        "HF_repository": "none",
 
         "lora_args":
         {
