@@ -3,7 +3,7 @@
     {
         "dataset_name": "stanfordnlp/imdb",
         "model_name": "distilbert/distilbert-base-cased",
-        "train_batch_size": 32,
+        "train_batch_size": 16,
         "eval_batch_size": 64,
         "num_workers": 0,
         "num_epochs": 5,

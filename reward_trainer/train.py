@@ -1,7 +1,6 @@
 
 import torch
 import torch.nn.functional as F
-from torch.optim.optimizer import Args
 from model_utils import *
 from data_utils import load_imdb_dataset, IMDbDataset, EVALIMDbDataset, collate_fn_RT
 from accelerate import Accelerator
