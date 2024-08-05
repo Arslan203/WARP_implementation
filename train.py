@@ -51,7 +51,7 @@ def train(args):
         if epoch % args['epoch_to_save'] == 0:
             # model.push_to_hub(HF_REPO, commit_message=f'w/o lora {epoch} epoch') ???
 
-            accelerator.log({'loss/train': sum(losses) / len(losses)})
+        accelerator.log({'loss/train': sum(losses) / len(losses)})
 
         model.eval()
         losses = []

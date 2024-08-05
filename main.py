@@ -1,6 +1,5 @@
-
+import json
 import argparse
-from config import Config
 from train import train
 
 def parse_args():
@@ -11,15 +10,20 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=3, help='Number of training epochs')
     return parser.parse_args()
 
+def load_config(json_file):
+    with open(json_file, 'r') as f:
+        config = json.load(f)
+    return config
+
 def main():
     args = parse_args()
     
     # Update the Config with command-line arguments
-    config = Config()
-    config.model_name = args.model_name
-    config.learning_rate = args.learning_rate
-    config.batch_size = args.batch_size
-    config.epochs = args.epochs
+    config = load_config('config.json')
+    config['model_name'] = args.model_name
+    config['optimizers_args']['learning_rate'] = args.learning_rate
+    config['batch_size'] = args.batch_size
+    config['num_epochs'] = args.epochs
 
     # Run training
     train()
