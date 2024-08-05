@@ -15,14 +15,14 @@ def configure_lora(model, lora_args):
         **lora_args,
     )
     model = get_peft_model(model, lora_config)
-    model.print_trainable_parameters()
+    # model.print_trainable_parameters()
     return model
 
 def get_optimizer_and_scheduler(model, args):
     def linear_scheduler(current_step, num_training_steps):
         return max(0.0, float(num_training_steps - current_step) / float(max(1, num_training_steps)))
 
-    optimizer = torch.optim.AdamW(model.parameters(), args['optimizer_args']['learning_rate'], weight_decay=args['optimizer_args']['weight_decay'])
+    optimizer = torch.optim.AdamW(model.parameters(), args['optimizers_args']['learning_rate'], weight_decay=args['optimizers_args']['weight_decay'])
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, partial(linear_scheduler, num_training_steps=args['num_epochs'] * args['batch_per_epoch']))
     return optimizer, scheduler
 

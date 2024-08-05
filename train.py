@@ -1,7 +1,7 @@
 
 import torch
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
+from torch.optim.optimizer import Args
 from model_utils import *
 from data_utils import load_imdb_dataset, IMDbDataset, EVALIMDbDataset, collate_fn
 from accelerate import Accelerator
@@ -19,18 +19,24 @@ def train(args):
     eval_dataset = EVALIMDbDataset(dataset['test']['text'], dataset['test']['label'])
 
     # Create DataLoaders
-    collate_fn_ = partial(collate_fn, tokenizer)
-    train_loader = DataLoader(train_dataset, batch_size=args['train_batch_size'], shuffle=True,
-                               num_workers=args['num_workers'], collate_fn=collate_fn_)
-    eval_loader = DataLoader(eval_dataset, batch_size=args['eval_batch_size'], shuffle=False,
-                              num_workers=args['num_workers'], collate_fn=collate_fn_)
+    # collate_fn_ = partial(collate_fn, tokenizer=tokenizer)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args['train_batch_size'], shuffle=True,
+                               num_workers=args['num_workers'], collate_fn=collate_fn)
+    eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args['eval_batch_size'], shuffle=False,
+                              num_workers=args['num_workers'], collate_fn=collate_fn)
 
     # Set up optimizer
-    optimizer, scheduler = get_optimizer_and_scheduler(model, args['optimizers_args'])
+    optimizer, scheduler = get_optimizer_and_scheduler(model, args)
     set_seed(42)
-    accelerator = Accelerator(log_with=args['log_with'])
-    if args['log_with'] != 'none':
-        accelerator.init_trackers('reward_trainer')
+    logging = args['log_with'] != 'none'
+    if logging:
+      accelerator = Accelerator(log_with=args['log_with'])
+      accelerator.init_trackers('reward_trainer')
+    else:
+      accelerator = Accelerator()
+    train_loader, eval_loader, model, optimizer, scheduler = accelerator.prepare(
+        train_loader, eval_loader, model, optimizer, scheduler
+    )
     # Training loop
     for epoch in range(1, args['num_epochs'] + 1):
         model.train()
@@ -48,7 +54,7 @@ def train(args):
             if i == args['batch_per_epoch']:
                 break
 
-        if epoch % args['epoch_to_save'] == 0:
+        # if epoch % args['epoch_to_save'] == 0:
             # model.push_to_hub(HF_REPO, commit_message=f'w/o lora {epoch} epoch') ???
 
         accelerator.log({'loss/train': sum(losses) / len(losses)})
