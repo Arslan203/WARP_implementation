@@ -10,6 +10,9 @@ def parse_args():
     parser.add_argument('--I', type=int)
     parser.add_argument('--M', type=int)
     parser.add_argument('--T', type=int)
+    parser.add_argument('--nu', type=int)
+    parser.add_argument('--mu', type=int)
+    parser.add_argument('--lambda', type=int)
     return parser.parse_args()
 
 def load_config(json_file):

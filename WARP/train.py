@@ -16,12 +16,13 @@ def train(args):
 
     # Create DataLoader
     collate_fn_ = partial(collate_fn_WARP, tokenizer=tokenizer)
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args['train_batch_size'], shuffle=True,
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args['batch_size'], shuffle=True,
                                num_workers=args['num_workers'], collate_fn=collate_fn_)
 
     reward_model = RM(args['reward_model'], tokenizer, tokenizer_to=None, device=device)
 
     results = WARP_method(model, reward_model, train_loader, args['I'], args['nu'], args['lambda'],
-                gradient_accumulation_steps=args['gradient_accumulation_steps'], generation_config=generation_config, device=device)
+                gradient_accumulation_steps=args['gradient_accumulation_steps'], generation_config=generation_config,
+                device=device, mu=args['mu'], args=args)
     
     results['model'].save_pretrained(args['save_path'])

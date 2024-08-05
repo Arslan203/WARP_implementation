@@ -30,13 +30,14 @@ class RM(torch.nn.Module):
     self.model = model
     self.tokenizer_from = tokenizer_from
     self.tokenizer_to = tokenizer_to
-    self.model.eval()
     self.device = device
 
     if isinstance(self.model, str):
-       self.model = AutoModelForSequenceClassification.from_pretrained(self.model)
-       self.tokenizer_to = AutoTokenizer.from_pretrained(self.model)
+       name = self.model
+       self.model = AutoModelForSequenceClassification.from_pretrained(name)
+       self.tokenizer_to = AutoTokenizer.from_pretrained(name)
 
+    self.model.eval()
 
   def forward(self, query_completion):
     text = self.tokenizer_from.batch_decode(
