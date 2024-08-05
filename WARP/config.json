@@ -3,11 +3,14 @@
     {
         "dataset_name": "stanfordnlp/imdb",
         "model_name": "lvwerra/gpt2-imdb",
+        "reward_model": "ChokeGM/reward_model_imdb",
         "batch_size": 32,
+        "gradient_accumulation_steps": 2,
         "num_workers": 0,
         "I": 2,
         "M": 2,
         "T": 100,
+        "truncate_range": [5, 15],
         "save_path": "WARP_saved",
         "HF_repository": "none",
         "optimizers_args":

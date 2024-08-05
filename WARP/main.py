@@ -21,7 +21,7 @@ def main():
     args = parse_args()
     
     # Update the Config with command-line arguments
-    config = load_config('config.json')['reward_trainer_args']
+    config = load_config('config.json')['WARP_args']
     for name, val in args._get_kwargs():
         if val is not None:
             if name == 'learning_rate':
