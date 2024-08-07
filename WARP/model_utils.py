@@ -3,18 +3,13 @@ import torch
 from functools import partial
 import os
 
-def load_model_and_tokenizer(model_name):
+def load_model_and_tokenizer(model_name, generation_config_args):
     os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left', add_pad_token=True)
     tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(model_name, pad_token_id=tokenizer.eos_token_id)
     generation_config = GenerationConfig(
-        max_new_tokens=53,
-        min_new_tokens=53,
-        temperature=0.9,
-        top_p=1.0,
-        top_k=0.0,
-        do_sample=True
+        **generation_config_args
     )
     return model, tokenizer, generation_config
 

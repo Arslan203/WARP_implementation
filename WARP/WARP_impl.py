@@ -101,12 +101,12 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
   return {'vector': vector} | logs
 
-def compute_vectors(model, reward_model, dataset, optimizer, M=2, T=100, **kwargs):
+def compute_vectors(model, reward_model, dataset, M=2, T=100, **kwargs):
     res = defaultdict(list)
     for m in range(M):
-      ret_dict = inner_loop(sft_model=model, reward_model=reward_model, prompt_dataset=dataset, optimizer=optimizer, T=T, **kwargs)
+      ret_dict = inner_loop(sft_model=model, reward_model=reward_model, prompt_dataset=dataset, T=T, **kwargs)
 
-      for key in ret_dict.keys():
+      for key in ret_dict.keys(): # gathering logs
         res[key].append(ret_dict[key])
 
     for key, val in res.items(): # merging res dict
@@ -124,10 +124,10 @@ def SLERP(w_init, w_1, w_2, lamb, eps=1e-6):
     yield name, par.data.detach().clone().mul_(1 - coef_1 - coef_2).add_(w_1[name].data, alpha=coef_1).add_(w_2[name].data, alpha=coef_2)
 
 
-def WARP_method(model, reward_model, dataset, I, nu=0.5, lamb=0.5, **kwargs): # for now supports only M=2
+def WARP_method(model, reward_model, dataset, I, M=2, nu=0.5, lamb=0.5, **kwargs): # for now supports only M=2
     device = kwargs.get('device', 'cuda')
     model_sft = deepcopy(model).to('cpu')
-    model.to(kwargs.get())
+    model.to(device)
     res = defaultdict(list)
     for i in range(I):
         vector_logs = compute_vectors(model, reward_model, dataset, **kwargs)

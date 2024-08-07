@@ -13,13 +13,26 @@
         "nu": 0.5,
         "lambda": 0.5,
         "mu": 0.01,
+        "beta": 0.1,
+        "verbose": true,
         "truncate_range": [5, 15],
         "save_path": "WARP_saved",
         "HF_repository": "none",
+
         "optimizers_args":
         {
             "learning_rate": 5e-4,
-            "weight_decay": 0.1
+            "weight_decay": 0
+        },
+
+        "generation_config_args":
+        {
+            "max_new_tokens": 53,
+            "min_new_tokens": 53,
+            "temperature": 0.9,
+            "top_p": 1.0,
+            "top_k": 0.0,
+            "do_sample": true
         }
 
     }
