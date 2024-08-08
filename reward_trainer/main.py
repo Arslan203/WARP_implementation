@@ -1,6 +1,7 @@
 import json
 import argparse
 from train import train
+import os
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a sequence classification model with LoRA")
@@ -21,6 +22,12 @@ def load_config(json_file):
 
 def main():
     args = parse_args()
+
+    cwd = os.getcwd()
+
+    chosen_wd = os.path.join(cwd, 'reward_trainer')
+
+    os.chdir(chosen_wd)
     
     # Update the Config with command-line arguments
     config = load_config('config.json')['reward_trainer_args']
@@ -30,9 +37,12 @@ def main():
                 config['optimizers_args']['learning_rate'] = args.learning_rate
             else:
                 config[name] = args.__getattr__(name)
-                
+
+    config['save_path'] = os.path.join(cwd, config['save_path'])           
     # Run training
     train(config)
+
+    os.chdir(cwd)
 
 if __name__ == "__main__":
     main()
