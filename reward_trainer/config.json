@@ -1,0 +1,35 @@
+{
+    "reward_trainer_args":
+    {
+        "dataset_name": "stanfordnlp/imdb",
+        "model_name": "distilbert/distilbert-base-cased",
+        "train_batch_size": 16,
+        "eval_batch_size": 64,
+        "num_workers": 0,
+        "num_epochs": 5,
+        "batch_per_epoch": 1000,
+        "batch_per_eval": 100,
+        "epoch_to_save": 2,
+        "log_with": "none",
+        "save_path": "RM",
+        "HF_repository": "none",
+
+        "lora_args":
+        {
+            "r": 16,
+            "lora_dropout": 0.1,
+            "lora_alpha": 16,
+            "target_modules": ["q_lin", "v_lin"],
+            "modules_to_save": ["classifier", "pre_classifier"],
+            "bias": "all",
+            "inference_mode": true
+        },
+
+        "optimizers_args":
+        {
+            "learning_rate": 0.0001,
+            "weight_decay": 0.0
+        }
+
+    }
+}
