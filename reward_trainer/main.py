@@ -1,6 +1,7 @@
 import json
 import argparse
 from train import train
+import os.path as osp
 import os
 
 def parse_args():
@@ -23,8 +24,9 @@ def load_config(json_file):
 def main():
     args = parse_args()
     
+    config_path = osp.abspath(osp.join(__file__, osp.pardir, 'config.json'))
     # Update the Config with command-line arguments
-    config = load_config('config.json')['reward_trainer_args']
+    config = load_config(config_path)['reward_trainer_args']
     for name, val in args._get_kwargs():
         if val is not None:
             if name == 'learning_rate':
