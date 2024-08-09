@@ -10,6 +10,7 @@ def parse_args():
     parser.add_argument('--model_name', type=str, help='Name of the model to use')
     parser.add_argument('--learning_rate', type=float, help='Learning rate for training')
     parser.add_argument('--batch_size', type=int, help='Batch size for training')
+    parser.add_argument('--reward_model', type=int, help='reward model for training')
     parser.add_argument('--I', type=int)
     parser.add_argument('--M', type=int)
     parser.add_argument('--T', type=int)
