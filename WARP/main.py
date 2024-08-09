@@ -1,6 +1,9 @@
 import json
 import argparse
 from train import train
+from pathlib import Path
+import os.path as osp
+import os
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a sequence classification model with LoRA")
@@ -22,9 +25,11 @@ def load_config(json_file):
 
 def main():
     args = parse_args()
+
+    config_path = osp.abspath(osp.join(__file__, osp.pardir, 'config.json'))
     
     # Update the Config with command-line arguments
-    config = load_config('config.json')['WARP_args']
+    config = load_config(config_path)['WARP_args']
     for name, val in args._get_kwargs():
         if val is not None:
             if name == 'learning_rate':
@@ -32,6 +37,11 @@ def main():
             else:
                 config[name] = args.__getattr__(name)
 
+    # check reward_path
+    if Path(config['reward_model']).is_dir():
+        config['reward_model'] = osp.abspath(config['reward_model'])
+
+    config['save_path'] = osp.join(os.getcwd(), config['save_path'])  
     # Run training
     train(config)
 
