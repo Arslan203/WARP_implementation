@@ -14,6 +14,7 @@ def parse_args():
     parser.add_argument('--batch_per_epoch', type=int, help='Number of batchs in epoch')
     parser.add_argument('--epoch_to_save', type=int, help='Number of epochs per saving')
     parser.add_argument('--batch_per_eval', type=int, help='Number of batchs per evaluating')
+    parser.add_argument('--save_path', type=str, help='path to saved model')
     return parser.parse_args()
 
 def load_config(json_file):
