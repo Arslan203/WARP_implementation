@@ -32,7 +32,7 @@ def main():
             if name == 'learning_rate':
                 config['optimizers_args']['learning_rate'] = args.learning_rate
             else:
-                config[name] = args.__getattr__(name)
+                config[name] = args.__getattribute__(name)
 
     config['save_path'] = os.path.join(os.getcwd(), config['save_path'])           
     # Run training
