@@ -15,6 +15,7 @@
         "mu": 0.01,
         "beta": 0.1,
         "verbose": true,
+        "seed": 42,
         "truncate_range": [5, 15],
         "save_path": "WARP_saved",
         "HF_repository": "none",

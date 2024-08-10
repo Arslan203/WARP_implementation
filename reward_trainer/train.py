@@ -1,4 +1,4 @@
-
+import numpy as np
 import torch
 import torch.nn.functional as F
 from model_utils import *
@@ -9,6 +9,10 @@ from tqdm import tqdm
 from functools import partial
 
 def train(args):
+    np.random.seed(args['seed'])
+    torch.manual_seed(args['seed'])
+    set_seed(args['seed'])
+
     dataset = load_imdb_dataset(args['dataset_name'])
     model, tokenizer = load_model_and_tokenizer(args['model_name'])
     model = configure_lora(model, args['lora_args'])
@@ -27,7 +31,6 @@ def train(args):
     # Set up optimizer
     optimizer, scheduler = get_optimizer_and_scheduler(model, args)
 
-    set_seed(42)
     logging = args['log_with'] != 'none'
     if logging:
       accelerator = Accelerator(log_with=args['log_with'])
@@ -42,7 +45,7 @@ def train(args):
     for epoch in range(1, args['num_epochs'] + 1):
         model.train()
         losses = []
-        for i, batch in tqdm(enumerate(train_loader)):
+        for i, batch in tqdm(enumerate(train_loader), disable=not args['verbose'], desc='train_epoch'):
             optimizer.zero_grad()
             chosen = model(input_ids=batch['input_ids_chosen'], attention_mask=batch['attention_mask_chosen']).logits
             rejected = model(input_ids=batch['input_ids_rejected'], attention_mask=batch['attention_mask_rejected']).logits
@@ -67,7 +70,7 @@ def train(args):
         model.eval()
         losses = []
         metric_reward = RewardBenchmark()
-        for i, batch in tqdm(enumerate(eval_loader)):
+        for i, batch in tqdm(enumerate(eval_loader), disable=not args['verbose'], desc='eval_epoch'):
             with torch.no_grad():
                 chosen = model(input_ids=batch['input_ids_chosen'], attention_mask=batch['attention_mask_chosen']).logits
                 rejected = model(input_ids=batch['input_ids_rejected'], attention_mask=batch['attention_mask_rejected']).logits
@@ -91,6 +94,3 @@ def train(args):
                         'loss/eval': sum(losses) / len(losses)})
 
     accelerator.end_training()
-
-if __name__ == "__main__":
-    train()

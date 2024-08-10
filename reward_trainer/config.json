@@ -13,6 +13,8 @@
         "log_with": "none",
         "save_path": "RM",
         "HF_repository": "none",
+        "verbose": true,
+        "seed": 42,
 
         "lora_args":
         {

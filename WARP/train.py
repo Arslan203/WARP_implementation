@@ -1,12 +1,18 @@
 import torch
 import torch.nn.functional as F
+import numpy as np
 from model_utils import load_model_and_tokenizer, RM
 from data_utils import load_imdb_dataset, IMDbPrompts, collate_fn_WARP
 from functools import partial
 from WARP_impl import WARP_method
+from accelerate.utils import set_seed
 
 
 def train(args):
+    np.random.seed(args['seed'])
+    torch.manual_seed(args['seed'])
+    set_seed(args['seed'])
+
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     dataset = load_imdb_dataset(args['dataset_name'])
     model, tokenizer, generation_config = load_model_and_tokenizer(args['model_name'], args['generation_config_args'])
