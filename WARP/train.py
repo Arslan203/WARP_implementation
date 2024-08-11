@@ -32,3 +32,5 @@ def train(args):
                 device=device, mu=args['mu'], args=args, beta=args['beta'], verbose=args['verbose'])
     
     results['model'].save_pretrained(args['save_path'])
+
+    torch.cuda.empty_cache()

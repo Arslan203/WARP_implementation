@@ -94,3 +94,5 @@ def train(args):
                         'loss/eval': sum(losses) / len(losses)})
 
     accelerator.end_training()
+    
+    torch.cuda.empty_cache()
