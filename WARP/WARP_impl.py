@@ -4,8 +4,8 @@ from accelerate import Accelerator
 from collections import defaultdict
 import torch
 import torch.nn.functional as F
-from copy import deepcopy
-from ema_pytorch import EMA
+from copy import deepcopy, copy
+# from ema_pytorch import EMA
 from model_utils import forward, generate, get_optimizer_and_scheduler
 
 
@@ -13,6 +13,33 @@ def gather_logprobs(logits, index):
   all_logprobs = F.log_softmax(logits, dim=-1)
   logprobs = torch.gather(all_logprobs, 2, index.unsqueeze(-1)).squeeze(-1)
   return logprobs
+
+class EMA(torch.nn.Module):
+  def __init__(self, model, beta, update_after_step, update_every):
+    super().__init__()
+    self.ema_model = deepcopy(model)
+    self.model = copy(model)
+    self.beta = beta
+    self.update_after_step = update_after_step
+    self.update_every = update_every
+    self.step = torch.tensor(0)
+  
+  def forward(self, *args, **kwargs):
+    return self.ema_model(*args, **kwargs)
+
+  def update(self):
+    step = self.step.item()
+    self.step += 1
+
+    if (step % self.update_every) != 0:
+      return
+    
+    self.update_moving_average(self.ema_model, self.model)
+
+  def update_moving_average(self, ema_model, model):
+    st_dict = ema_model.state_dict()
+    for name, par in dict(model.state_dict()).items():
+      st_dict[name].data.mul_(self.beta).add_(par, alpha=1 - self.beta)
 
 def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
