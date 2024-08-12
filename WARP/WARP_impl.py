@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from copy import deepcopy
 from ema_pytorch import EMA
 from model_utils import forward, generate, get_optimizer_and_scheduler
+import numpy as np
 
 
 def gather_logprobs(logits, index):
@@ -119,7 +120,7 @@ def SLERP(w_init, w_1, w_2, lamb, eps=1e-6):
   angle = torch.acos(F.cosine_similarity(w1_flatten, w2_flatten, 0)) + eps
   coef_1 = (torch.sin((1 - lamb) * angle) / torch.sin(angle)).item()
   coef_2 = (torch.sin(lamb * angle) / torch.sin(angle)).item()
-  print(f'angle_between_task_vectors:{angle.item()}')
+  print(f'angle_between_task_vectors:{180 * angle.item() / np.pi:.1f} degrees')
   for name, par in w_init.items():
     yield name, par.data.detach().clone().mul_(1 - coef_1 - coef_2).add_(w_1[name].data, alpha=coef_1).add_(w_2[name].data, alpha=coef_2)
 
