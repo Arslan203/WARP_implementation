@@ -22,13 +22,13 @@ class EMA(torch.nn.Module):
     self.beta = beta
     self.update_after_step = update_after_step
     self.update_every = update_every
-    self.step = torch.tensor(0)
+    self.step = 1
   
   def forward(self, *args, **kwargs):
     return self.ema_model(*args, **kwargs)
 
   def update(self):
-    step = self.step.item()
+    step = self.step
     self.step += 1
 
     if (step % self.update_every) != 0:
