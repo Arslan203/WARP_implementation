@@ -3,8 +3,13 @@
 ### Abstract
 Метод Reinforcement Learning from Human Feedback (RLHF) популярный подход для алаймента языковых моделей, однако его реализация, особенно с использованием Proximal Policy Optimization (PPO), вызывает множество сложностей из-за нестабильности процесса обучения. В статье Back to Basics: Revisiting REINFORCE Style Optimization for Learning from Human Feedback in LLMs был предложен более простой подход на основе метода REINFORCE, который в ряде задач демонстрирует лучшие результаты. В работе WARP: On the Benefits of Weight Averaged Rewarded Policies представлена модификация метода REINFORCE с использованием техник объединения моделей, что может привести к более стабильному и эффективному обучению. В данной работе приведена реализация и анализ этого метода.
 
-#### Getting started
-- Ознакомиться с реализацией можно в этом [ноутбуке](https://colab.research.google.com/drive/1nO5wbPVXitXNT6sg-X8o-8VYhqB32rSI?usp=sharing).
+#### Quick start for tbank reviewers
+- [быстрый запуск метода](https://colab.research.google.com/drive/1nO5wbPVXitXNT6sg-X8o-8VYhqB32rSI?usp=sharing), рекомендуется использовать в google colab
+
+### Variating EMA coefficient $\mu$
+- [оценка влияния $\mu$ на результаты модели](https://colab.research.google.com/drive/1QGTrRP_8WBRIOTq_i5ECwiX0HJ_hGWWI?usp=sharing)
+
+### Getting started with local machine
 
 - Клонирование репозитория
 ```bash
