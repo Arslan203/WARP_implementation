@@ -116,7 +116,11 @@ def compute_vectors(model, reward_model, dataset, M=2, T=100, **kwargs):
     return res
 
 def SLERP(w_init, w_1, w_2, lamb, eps=1e-6):
-  w1_flatten, w2_flatten = torch.cat([w1.flatten() - w.flatten() for w1, w in zip(w_1.values(), w_init.values())], 0), torch.cat([w2.flatten() - w.flatten() for w2, w in zip(w_2.values(), w_init.values())], 0)
+  for name in w_1.keys():
+     w_1[name].data.add_(w_init[name].data, alpha=-1)
+     w_2[name].data.add_(w_init[name].data, alpha=-1)
+  
+  w1_flatten, w2_flatten = torch.cat([w1.flatten() for w1 in w_1.values()], 0), torch.cat([w2.flatten() for w2 in w_2.values()], 0)
   angle = torch.acos(F.cosine_similarity(w1_flatten, w2_flatten, 0)) + eps
   coef_1 = (torch.sin((1 - lamb) * angle) / torch.sin(angle)).item()
   coef_2 = (torch.sin(lamb * angle) / torch.sin(angle)).item()
