@@ -54,8 +54,8 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
   if generation_config is None:
     generation_config = sft_model.generation_config
-    generation_config.max_new_tokens = 100
-#     generation_config.temperature = 0.9
+    generation_config.max_new_tokens = 53
+    generation_config.temperature = 0.9
 
   model = sft_model
   state_dict_innate = deepcopy(model.state_dict())
@@ -75,6 +75,8 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
   logs = {'reward': [], 'kl': []}
 
+  accelerator.init_trackers('WARP_testing')
+
   for t in range(1, T * grad_acc_steps + 1):
     with accelerator.accumulate(model):
       model.eval()
@@ -91,7 +93,7 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
         logits_ref = forward(ema_model, query_completion).logits
         logprobs_ref = gather_logprobs(logits_ref[:, x.shape[1] - 1 : -1, :], completion)
 
-        reward = reward_model(query_completion)
+        reward = reward_model(completion)
 
       model.train()
       pbar.set_description('model_forward')
@@ -105,6 +107,10 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
       logs['reward'].append(reward.mean(-1).item())
       logs['kl'].append(kl_loss.mean(-1).item())
 
+      accelerator.log({'kl_divergence':logs['kl'][-1],
+                       'reward': logs['reward'][-1],
+                      'loss': loss.item()})
+      
       accelerator.backward(loss)
 
       optimizer.step()
@@ -143,18 +149,13 @@ def compute_vectors(model, reward_model, dataset, M=2, T=100, **kwargs):
     return res
 
 def SLERP(w_init, w_1, w_2, lamb, eps=1e-6):
-  for name in w_1.keys():
-     w_1[name].data.add_(w_init[name].data, alpha=-1)
-     w_2[name].data.add_(w_init[name].data, alpha=-1)
-  
-  w1_flatten, w2_flatten = torch.cat([w1.flatten() for w1 in w_1.values()], 0), torch.cat([w2.flatten() for w2 in w_2.values()], 0)
+  w1_flatten, w2_flatten = torch.cat([w1.flatten() - w.flatten() for w1, w in zip(w_1.values(), w_init.values())], 0), torch.cat([w2.flatten() - w.flatten() for w2, w in zip(w_2.values(), w_init.values())], 0)
   angle = torch.acos(F.cosine_similarity(w1_flatten, w2_flatten, 0)) + eps
   coef_1 = (torch.sin((1 - lamb) * angle) / torch.sin(angle)).item()
   coef_2 = (torch.sin(lamb * angle) / torch.sin(angle)).item()
-  print(f'angle_between_task_vectors:{180 * angle.item() / np.pi:.1f} degrees')
+  print(f'angle_between_task_vectors:{angle.item()}')
   for name, par in w_init.items():
-    yield name, par.data.add(w_1[name].data, alpha=coef_1).add_(w_2[name].data, alpha=coef_2)
-
+    yield name, par.data.detach().clone().mul_(1 - coef_1 - coef_2).add_(w_1[name].data, alpha=coef_1).add_(w_2[name].data, alpha=coef_2)
 
 def WARP_method(model, reward_model, dataset, I, M=2, nu=0.5, lamb=0.5, **kwargs): # for now supports only M=2
     device = kwargs.get('device', 'cuda')
@@ -181,4 +182,4 @@ def WARP_method(model, reward_model, dataset, I, M=2, nu=0.5, lamb=0.5, **kwargs
     for key, val in res.items(): # merging res dict
       res[key] = torch.stack(val, 0)
 
-    return {'model': model_sft} | res
+    return {'model': model_sft, 'last_weights': model_st_cp} | res

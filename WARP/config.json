@@ -23,7 +23,7 @@
 
         "optimizers_args":
         {
-            "learning_rate": 5e-4,
+            "learning_rate": 5e-6,
             "weight_decay": 0
         },
 
