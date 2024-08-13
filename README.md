@@ -7,7 +7,7 @@
 - [быстрый запуск метода](https://colab.research.google.com/drive/1nO5wbPVXitXNT6sg-X8o-8VYhqB32rSI?usp=sharing), рекомендуется использовать в google colab
 
 ### Variating EMA coefficient $\mu$
-- [оценка влияния $\mu$ на результаты модели](https://colab.research.google.com/drive/1QGTrRP_8WBRIOTq_i5ECwiX0HJ_hGWWI?usp=sharing)
+- [оценка влияния гиперпараметра на результаты модели](https://colab.research.google.com/drive/1QGTrRP_8WBRIOTq_i5ECwiX0HJ_hGWWI?usp=sharing)
 
 ### Getting started with local machine
 
