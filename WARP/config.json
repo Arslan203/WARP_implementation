@@ -19,6 +19,7 @@
         "truncate_range": [5, 15],
         "save_path": "WARP_saved",
         "HF_repository": "none",
+        "logging": "ERROR",
 
         "optimizers_args":
         {
