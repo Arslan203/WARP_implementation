@@ -40,7 +40,7 @@ def train(args):
 
     reward_model = RM(args['reward_model'], tokenizer, tokenizer_to=None, device=device)
 
-    results = WARP_method(model, reward_model, train_loader, args['I'], M=args['M'], nu=args['nu'], lamb=args['lambda'],
+    results = WARP_method(model, reward_model, train_loader, I=args['I'], M=args['M'], T=args['T'], nu=args['nu'], lamb=args['lambda'],
                 gradient_accumulation_steps=args['gradient_accumulation_steps'], generation_config=generation_config,
                 device=device, mu=args['mu'], args=args, beta=args['beta'], verbose=args['verbose'])
     

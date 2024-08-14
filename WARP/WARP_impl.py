@@ -157,13 +157,13 @@ def SLERP(w_init, w_1, w_2, lamb, eps=1e-6):
   for name, par in w_init.items():
     yield name, par.data.detach().clone().mul_(1 - coef_1 - coef_2).add_(w_1[name].data, alpha=coef_1).add_(w_2[name].data, alpha=coef_2)
 
-def WARP_method(model, reward_model, dataset, I, M=2, nu=0.5, lamb=0.5, **kwargs): # for now supports only M=2
+def WARP_method(model, reward_model, dataset, I=2, M=2, T=100, nu=0.5, lamb=0.5, **kwargs): # for now supports only M=2
     device = kwargs.get('device', 'cuda')
     model_sft = deepcopy(model).to('cpu')
     model.to(device)
     res = defaultdict(list)
     for i in range(I):
-        vector_logs = compute_vectors(model, reward_model, dataset, **kwargs)
+        vector_logs = compute_vectors(model, reward_model, dataset, M, T, **kwargs)
         vectors = vector_logs.pop('vector')
         model_st_cp = deepcopy(model.state_dict())
         if i == I - 1:
