@@ -148,17 +148,19 @@ def compute_vectors(model, reward_model, dataset, M=2, T=100, **kwargs):
         res[key] = torch.stack(val, 0)
     return res
 
-def SLERP(w_init, w_1, w_2, lamb, eps=1e-6):
+def SLERP(w_init, w_1, w_2, lamb, verbose=True, eps=1e-6):
   w1_flatten, w2_flatten = torch.cat([w1.flatten() - w.flatten() for w1, w in zip(w_1.values(), w_init.values())], 0), torch.cat([w2.flatten() - w.flatten() for w2, w in zip(w_2.values(), w_init.values())], 0)
   angle = torch.acos(F.cosine_similarity(w1_flatten, w2_flatten, 0)) + eps
   coef_1 = (torch.sin((1 - lamb) * angle) / torch.sin(angle)).item()
   coef_2 = (torch.sin(lamb * angle) / torch.sin(angle)).item()
-  # print(f'angle_between_task_vectors:{angle.item()}')
+  if verbose:
+    print(f'angle_between_task_vectors:{180 * angle.item() / np.pi:.1f} degrees')
   for name, par in w_init.items():
     yield name, par.data.detach().clone().mul_(1 - coef_1 - coef_2).add_(w_1[name].data, alpha=coef_1).add_(w_2[name].data, alpha=coef_2)
 
 def WARP_method(model, reward_model, dataset, I=2, M=2, T=100, nu=0.5, lamb=0.5, **kwargs): # for now supports only M=2
     device = kwargs.get('device', 'cuda')
+    verbose = kwargs.get('verbose', True)
     model_sft = deepcopy(model).to('cpu')
     model.to(device)
     res = defaultdict(list)
@@ -171,7 +173,7 @@ def WARP_method(model, reward_model, dataset, I=2, M=2, T=100, nu=0.5, lamb=0.5,
             model_st = dict(model_sft.state_dict())
         else:
             model_st = dict(model.state_dict())
-        for name, slerp_par in SLERP(model_st_cp, *vectors, lamb):
+        for name, slerp_par in SLERP(model_st_cp, *vectors, lamb, verbose, kwargs['verbose']):
             model_st[name].data.mul_(1 - nu).add_(slerp_par, alpha=nu)
 
         for key, val in vector_logs.items():
