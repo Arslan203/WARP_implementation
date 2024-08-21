@@ -6,6 +6,9 @@
 ### Quick start for tbank reviewers
 - [быстрый запуск метода](https://colab.research.google.com/drive/1nO5wbPVXitXNT6sg-X8o-8VYhqB32rSI?usp=sharing), рекомендуется использовать в google colab
 
+### Variating number of iterations I
+- [оценка влияния гиперпараметра на результаты модели](https://colab.research.google.com/drive/12xK97YM9F7io39tfpvqG8i6xqUdma0zc?usp=sharing)
+
 ### Variating EMA coefficient $\mu$
 - [оценка влияния гиперпараметра на результаты модели](https://colab.research.google.com/drive/1QGTrRP_8WBRIOTq_i5ECwiX0HJ_hGWWI?usp=sharing)
 
