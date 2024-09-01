@@ -49,6 +49,7 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
   verbose = kwargs.get('verbose', True)
   grad_acc_steps = kwargs.get('gradient_accumulation_steps', 2)
   mu = kwargs.get('mu', 0.01)
+  baseline = kwargs['baseline']
   mu = 1 - mu
   pad_token_id = reward_model.tokenizer_from.pad_token_id
 
@@ -77,7 +78,9 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
   accelerator.init_trackers('WARP_testing')
 
-  for t in range(1, T * grad_acc_steps + 1):
+  baselines = []
+
+  for t in range(1, (T + 1)* grad_acc_steps):
     with accelerator.accumulate(model):
       model.eval()
 
@@ -102,7 +105,14 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
       kl_loss = (logprobs_non_grad - logprobs_ref).sum(-1)
 
-      loss = - torch.mean(logprobs.sum(-1) * (reward - beta * kl_loss))
+      if len(baselines) == 0 or baseline == 'none':
+        mean_base = 0
+      elif baseline == 'MA':
+        mean_base = sum(baseline) / len(baseline)
+      else:
+        raise ValueError('baseline method not recognized')
+
+      loss = - torch.mean(logprobs.sum(-1) * (reward - beta * kl_loss - mean_base))
 
       logs['reward'].append(reward.mean(-1).item())
       logs['kl'].append(kl_loss.mean(-1).item())
@@ -119,8 +129,10 @@ def inner_loop(sft_model, reward_model, prompt_dataset, T, **kwargs):
 
       ema_model.update()
 
+
       if t % grad_acc_steps == 0:
         pbar.update(1)
+        baseline.append((np.array(logs['reward'][-grad_acc_steps:]) - beta * np.array(logs['kl'][-grad_acc_steps:])).mean())
 
   for name, metric in logs.items():
     logs[name] = torch.tensor(metric)

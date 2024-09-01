@@ -7,6 +7,7 @@
         "batch_size": 32,
         "gradient_accumulation_steps": 2,
         "num_workers": 0,
+        "baseline": "MA",
         "I": 2,
         "M": 2,
         "T": 100,
